@@ -3,6 +3,14 @@ import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+
+const posts = (
+	await Astro.glob('../content/blog/*.{md,mdx}')
+).sort(
+	(a, b) =>
+		new Date(b.frontmatter.pubDate).valueOf() -
+		new Date(a.frontmatter.pubDate).valueOf()
+).slice(0, 3);
 ---
 
 <!doctype html>
@@ -13,38 +21,154 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 	<body>
 		<Header />
 		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This
-				template serves as a lightweight, minimally-styled starting point for anyone looking to build
-				a personal website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to <a href="https://docs.astro.build/"
-					>read the docs
-				</a> or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out <a
-					href="https://github.com/Charca/astro-blog-template"
-					>astro-blog-template
-				</a> by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
+			<section class="hero">
+				<h1>{SITE_TITLE}</h1>
+				<p class="lede">
+					A quiet space for Marian devotion, Catholic imagination, and meditations on the ordinary
+					ways grace reveals itself.
+				</p>
+				<div class="cta-group">
+					<a class="cta primary" href="/blog">Visit the journal</a>
+					<a class="cta secondary" href="/about">Learn about the project</a>
+				</div>
+			</section>
+
+			<section class="features">
+				<h2>What you will find</h2>
+				<ul>
+					<li>Short reflections rooted in Scripture and the Rosary.</li>
+					<li>Field notes from pilgrimages, parish life, and conversations with fellow devotees.</li>
+					<li>Reviews of art, music, and literature that illuminate Marian themes today.</li>
+				</ul>
+				<p>
+					Every entry begins at the foot of the Cross and wanders through the ordinary. Some stay
+					as prayers, others become essays, all aim to kindle deeper love for the Mother of God.
+				</p>
+			</section>
+
+			{posts.length > 0 && (
+				<section class="recent">
+					<h2>Latest journal entries</h2>
+					<ol>
+						{posts.map((post) => (
+							<li>
+								<a href={post.url}>{post.frontmatter.title}</a>
+								<time datetime={post.frontmatter.pubDate}>
+									{new Date(post.frontmatter.pubDate).toLocaleDateString(undefined, {
+										year: 'numeric',
+										month: 'long',
+										day: 'numeric',
+									})}
+								</time>
+								<p>{post.frontmatter.description}</p>
+							</li>
+						))}
+					</ol>
+					<p class="more">
+						Seeking an older reflection? The full archive lives in the <a href="/blog">journal</a>.
+					</p>
+				</section>
+			)}
+
+			<section class="newsletter">
+				<h2>Receive new reflections</h2>
+				<p>
+					A monthly digest gathers the latest essays, Marian prayers, and recommended reading.
+					Add the <a href="/rss.xml">RSS feed</a> to your reader or email
+					<a href="mailto:hello@demarianumquamsatis.com">hello@demarianumquamsatis.com</a> to
+					request early access to the newsletter.
+				</p>
+				<div class="cta-group">
+					<a class="cta primary" href="/rss.xml">Subscribe via RSS</a>
+					<a class="cta secondary" href="mailto:hello@demarianumquamsatis.com">Email for updates</a>
+				</div>
+			</section>
 		</main>
 		<Footer />
 	</body>
 </html>
+<style>
+	main {
+		display: flex;
+		flex-direction: column;
+		gap: 4rem;
+	}
+	.hero {
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+	}
+	.lede {
+		font-size: 1.2em;
+		max-width: 32rem;
+	}
+	.cta-group {
+		display: flex;
+		gap: 1rem;
+		flex-wrap: wrap;
+	}
+	.cta {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.75em 1.5em;
+		border-radius: 999px;
+		text-decoration: none;
+		font-weight: 600;
+	}
+	.primary {
+		background: var(--accent);
+		color: white;
+	}
+	.secondary {
+		border: 2px solid var(--accent);
+		color: var(--accent);
+	}
+	.features ul {
+		margin-top: 1em;
+	}
+	.features li {
+		margin-bottom: 0.75em;
+	}
+	.recent ol {
+		list-style: none;
+		padding: 0;
+		margin: 1.5em 0 0 0;
+		display: flex;
+		flex-direction: column;
+		gap: 1.5em;
+	}
+	.recent li {
+		background: rgba(var(--gray-light), 0.45);
+		border-radius: 12px;
+		padding: 1.5em;
+		box-shadow: var(--box-shadow);
+	}
+	.recent a {
+		font-weight: 600;
+		text-decoration: none;
+		font-size: 1.1em;
+	}
+	.recent time {
+		display: block;
+		margin-top: 0.35em;
+		font-size: 0.9em;
+		color: rgb(var(--gray));
+	}
+	.recent p {
+		margin: 0.75em 0 0 0;
+	}
+	.more {
+		margin-top: 1em;
+	}
+	.newsletter .cta-group {
+		margin-top: 1.5em;
+	}
+	@media (max-width: 720px) {
+		main {
+			gap: 3rem;
+		}
+		.recent li {
+			padding: 1.25em;
+		}
+	}
+</style>
